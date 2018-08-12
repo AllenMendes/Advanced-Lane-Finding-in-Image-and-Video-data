@@ -1,18 +1,17 @@
-# **Finding Lane Lines on the Road in Image and Video data Writeup** 
+# **Advanced Lane Finding on a Road in Image and Video data Writeup** 
 
 ## Objectives
 
-The main objective is to create a software pipeline with certain helper functions to detect lane lines in image and video data. The following methods were implemented to obtain the final results:
+The goals / steps of this project are the following:
 
-1. Color selection to detect white and yellow lane lines
-2. Convert image to grayscale for Canny Edge detection
-3. Gaussian Blur to remove noise from the image
-4. Canny Edge detection
-5. Define a Region of Interest
-6. Hough Transform
-7. Average and extrapolate hough lines
-8. Draw annotated lines on image and video data
-9. Main pipeline
+1. Compute the camera calibration matrix and distortion coefficients given a set of chessboard images.
+2. Apply a distortion correction to raw images.
+3. Use color transforms, gradients, etc., to create a thresholded binary image.
+4. Apply a perspective transform to rectify binary image ("birds-eye view").
+5. Detect lane pixels and fit to find the lane boundary.
+6. Determine the curvature of the lane and vehicle position with respect to center.
+7. Warp the detected lane boundaries back onto the original image.
+8. Output visual display of the lane boundaries and numerical estimation of lane curvature and vehicle position.
 
 ## Reflection
 
