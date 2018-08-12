@@ -25,10 +25,18 @@ The flow of the software piepline is explained in the following sections along w
   ![cam_cal1](https://github.com/AllenMendes/Advanced-Lane-Finding-in-Image-and-Video-data/blob/master/CarND-Advanced-Lane-Lines-P2/output_images/Camera_Calibration1.jpg)
   ![cam_cal2](https://github.com/AllenMendes/Advanced-Lane-Finding-in-Image-and-Video-data/blob/master/CarND-Advanced-Lane-Lines-P2/output_images/Camera_Calibration2.jpg)
   
+  ### 2. Apply a distortion correction to raw images
   (__*Code Section- Undistort image*__): I then used the output ```objpoints``` and ```imgpoints``` to compute the camera calibration and distortion coefficients using the ```cv2.calibrateCamera()``` function. I applied this distortion correction to a chessboard image and test image using the ```cv2.undistort()``` function and obtained this result: 
   #### Undistort image
   ![chess_test](https://github.com/AllenMendes/Advanced-Lane-Finding-in-Image-and-Video-data/blob/master/CarND-Advanced-Lane-Lines-P2/output_images/undistortChessboard.jpg)
   ![undistort_test](https://github.com/AllenMendes/Advanced-Lane-Finding-in-Image-and-Video-data/blob/master/CarND-Advanced-Lane-Lines-P2/output_images/undistort_test5.jpg)
+  
+  ### 3. Use color transforms, gradients, etc., to create a thresholded binary image
+  (__*Code Section- Color and Gradient thresholding*__): I used the L channel to detect white lanes and the S channel to detect yellow lanes with certain thresholding limits on the HLS values. As we are only interested in vertical lane lines with respect to the vehicle, I used the Sobel operator/filter to take a derivative (gradient descent) only in the X direction. Hence I obtained the gradient descent of the entire image only in the X direction with certain thresholding limits. On combining the color and gradient thresholded binary images, following is the binary output:
+  #### Color and Gradient Thresholded image
+  ![thres-out](https://github.com/AllenMendes/Advanced-Lane-Finding-in-Image-and-Video-data/blob/master/CarND-Advanced-Lane-Lines-P2/output_images/thres_out.jpg)
+  
+  
   
   If I convert this image to grayscale and use the ```inRange()``` function with parameters set to detect yellow and white lines, the output is not very clear in situations where shadows are present on the lane lines.
   ##### Grayscale image
