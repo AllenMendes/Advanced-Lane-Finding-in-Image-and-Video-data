@@ -20,7 +20,9 @@ The goals / steps of this project are the following:
 The flow of the software piepline is explained in the following sections along with the detailed explaination of each helper function and the reasons for selecting various parameters in them:
 
   ### 1. Compute the camera calibration matrix and distortion coefficients given a set of chessboard images 
-  (__*Code Section- Camera calibration using chessboard images*__): I start by preparing "object points", which will be the (x, y, z) coordinates of the chessboard corners in the world. Here I am assuming the chessboard is fixed on the (x, y) plane at z=0, such that the object points are the same for each calibration image. Thus, ```objp``` is just a replicated array of coordinates, and ```objpoints``` will be appended with a copy of it every time I successfully detect all chessboard corners in a test image. ```imgpoints``` will be appended with the (x, y) pixel position of each of the corners in the image plane with each successful chessboard detection. Once the corners are detected, I draw these corners on the [camera calibration images](https://github.com/AllenMendes/Advanced-Lane-Finding-in-Image-and-Video-data/tree/master/CarND-Advanced-Lane-Lines-P2/camera_cal) using ```cv2.drawChessboardCorners()``` and display all the images on which all the corners were detected or not. 
+  (__*Code Section- Camera calibration using chessboard images*__): I start by preparing "object points", which will be the (x, y, z) coordinates of the chessboard corners in the world. Here I am assuming the chessboard is fixed on the (x, y) plane at z=0, such that the object points are the same for each calibration image. Thus, ```objp``` is just a replicated array of coordinates, and ```objpoints``` will be appended with a copy of it every time I successfully detect all chessboard corners in a test image. ```imgpoints``` will be appended with the (x, y) pixel position of each of the corners in the image plane with each successful chessboard detection.
+  
+  Once the corners are detected, I draw these corners on the [camera calibration images](https://github.com/AllenMendes/Advanced-Lane-Finding-in-Image-and-Video-data/tree/master/CarND-Advanced-Lane-Lines-P2/camera_cal) using ```cv2.drawChessboardCorners()``` and display all the images on which all the corners were detected or not. 
   #### Camera Calibration
   ![cam_cal1](https://github.com/AllenMendes/Advanced-Lane-Finding-in-Image-and-Video-data/blob/master/CarND-Advanced-Lane-Lines-P2/output_images/Camera_Calibration1.jpg)
   ![cam_cal2](https://github.com/AllenMendes/Advanced-Lane-Finding-in-Image-and-Video-data/blob/master/CarND-Advanced-Lane-Lines-P2/output_images/Camera_Calibration2.jpg)
@@ -35,7 +37,18 @@ The flow of the software piepline is explained in the following sections along w
   (__*Code Section- Color and Gradient thresholding*__): I used the L channel to detect white lanes and the S channel to detect yellow lanes with certain thresholding limits on the HLS values. As we are only interested in vertical lane lines with respect to the vehicle, I used the Sobel operator/filter to take a derivative (gradient descent) only in the X direction. Hence I obtained the gradient descent of the entire image only in the X direction with certain thresholding limits. On combining the color and gradient thresholded binary images, following is the binary output:
   #### Color and Gradient Thresholded image
   ![thres-out](https://github.com/AllenMendes/Advanced-Lane-Finding-in-Image-and-Video-data/blob/master/CarND-Advanced-Lane-Lines-P2/output_images/thres_out.jpg)
-  
+ 
+ ### 4. Apply a perspective transform to rectify binary image ("birds-eye view")
+ (__*Code Section- Perspective Transform*__): I hardcored the source and destination points to extract a part of my binary output image and convert it to a bird's eye view for further calculations. The source and destination points are as follows:
+ |Location|Source|Destination|
+ |:---:|:---:|:---:|
+ |Top Left|450, 550|450, 0|
+ |Top Right|830, 550|830, 0|
+ |Bottom Left|230, 700|450, 720|
+ |Bottom Right|1075, 700|830, 720|
+ 
+ 
+ 
   
   
   If I convert this image to grayscale and use the ```inRange()``` function with parameters set to detect yellow and white lines, the output is not very clear in situations where shadows are present on the lane lines.
