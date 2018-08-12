@@ -19,10 +19,16 @@ The goals / steps of this project are the following:
 ---
 The flow of the software piepline is explained in the following sections along with the detailed explaination of each helper function and the reasons for selecting various parameters in them:
 
-  ### 1. Color selection to detect white and yellow lane lines
-  After reading an image, the first task is to robustly detect the white and yellow lines in an image. 
-  ##### Original image
-  ![challenge_image1](https://user-images.githubusercontent.com/8627486/43037545-1e742d10-8cdc-11e8-9efd-748017139e6c.png)
+  #### 1. Compute the camera calibration matrix and distortion coefficients given a set of chessboard images 
+  (Code Section- Camera calibration using chessboard images): I start by preparing "object points", which will be the (x, y, z) coordinates of the chessboard corners in the world. Here I am assuming the chessboard is fixed on the (x, y) plane at z=0, such that the object points are the same for each calibration image. Thus, ```objp``` is just a replicated array of coordinates, and ```objpoints``` will be appended with a copy of it every time I successfully detect all chessboard corners in a test image. ```imgpoints``` will be appended with the (x, y) pixel position of each of the corners in the image plane with each successful chessboard detection. Once the orners are detected, I draw those corners on the [camera calibration images](https://github.com/AllenMendes/Advanced-Lane-Finding-in-Image-and-Video-data/tree/master/CarND-Advanced-Lane-Lines-P2/camera_cal) using ```cv2.drawChessboardCorners()``` and display all the images on which all the corners were detected or not. 
+  ##### Camera Calibration
+  ![cam_cal1](https://github.com/AllenMendes/Advanced-Lane-Finding-in-Image-and-Video-data/blob/master/CarND-Advanced-Lane-Lines-P2/output_images/Camera_Calibration1.jpg)
+  ![cam_cal2](https://github.com/AllenMendes/Advanced-Lane-Finding-in-Image-and-Video-data/blob/master/CarND-Advanced-Lane-Lines-P2/output_images/Camera_Calibration2.jpg)
+  
+  (Code Section- Undistort image): I then used the output ```objpoints``` and ```imgpoints``` to compute the camera calibration and distortion coefficients using the ```cv2.calibrateCamera()``` function. I applied this distortion correction to a chessboard image and test image using the ```cv2.undistort()``` function and obtained this result: 
+  ##### Undistort image
+  ![chess_test](https://github.com/AllenMendes/Advanced-Lane-Finding-in-Image-and-Video-data/blob/master/CarND-Advanced-Lane-Lines-P2/output_images/undistortChessboard.jpg)
+  ![undistort_test](https://github.com/AllenMendes/Advanced-Lane-Finding-in-Image-and-Video-data/blob/master/CarND-Advanced-Lane-Lines-P2/output_images/undistort_test5.jpg)
   
   If I convert this image to grayscale and use the ```inRange()``` function with parameters set to detect yellow and white lines, the output is not very clear in situations where shadows are present on the lane lines.
   ##### Grayscale image
