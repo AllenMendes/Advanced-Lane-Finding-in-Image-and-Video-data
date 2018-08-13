@@ -40,6 +40,7 @@ The flow of the software piepline is explained in the following sections along w
  
  ### 4. Apply a perspective transform to rectify binary image ("birds-eye view")
  (__*Code Section- Perspective Transform*__): I hardcored the source and destination points to extract a part of my binary output image and convert it to a bird's eye view for further calculations. The source and destination points are as follows:
+ 
  | Location | Source   | Destination |
  |:--------:|:--------:|:-----------:|
  | Top Left | 450, 550 |    450, 0   |
