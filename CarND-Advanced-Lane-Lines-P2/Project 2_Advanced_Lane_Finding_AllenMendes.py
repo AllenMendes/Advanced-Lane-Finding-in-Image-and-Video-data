@@ -1,7 +1,7 @@
 
 # coding: utf-8
 
-# In[11]:
+# In[1]:
 
 
 # Import required packages
@@ -19,7 +19,7 @@ get_ipython().run_line_magic('matplotlib', 'inline')
 
 # # Camera calibration using chessboard images
 
-# In[12]:
+# In[2]:
 
 
 # Chessboard dimensions - 9x6
@@ -77,7 +77,7 @@ plt.show()
 
 # # Undistort image
 
-# In[13]:
+# In[3]:
 
 
 # Test undistortion on an image
@@ -103,7 +103,7 @@ plt.show()
 
 # Undistort test image
 plt.figure(figsize=(20, 10))
-image = cv2.imread('test_images/test5.jpg')
+image = cv2.imread('test_images/test3.jpg')
 plt.subplot(1, 2, 1)
 plt.imshow(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
 plt.title("Original Image", fontsize=30)
@@ -117,7 +117,7 @@ plt.savefig("output_images/undistort_test5.jpg")
 
 # # Sharpen Image
 
-# In[14]:
+# In[4]:
 
 
 def gaussianBlur(image, kernel_size):
@@ -131,7 +131,7 @@ def weightedImage(image, initial_image, α=0.5, β=1., γ=0.):
 
 # # Color and Gradient thresholding
 
-# In[15]:
+# In[5]:
 
 
 def colorAndGradientThres(image, s_thresh=(170, 255), l_thresh=(190, 255), sx_thresh=(25, 100)):
@@ -184,7 +184,7 @@ ax2.set_title('Combined Color and Gradient Thresholded Output', fontsize=20)
 
 # # Perspective Transform
 
-# In[16]:
+# In[6]:
 
 
 # Image Height and Image Width
@@ -230,13 +230,13 @@ ax2.set_title('Perspective Transformed Image', fontsize=30)
 
 # # Pipeline
 
-# In[17]:
+# In[7]:
 
 
 def pipeline(image):
     
     # Define source and destination points for transform
-    src = np.float32([(450,550), (830,550), (230,700), (1075,700)])  
+    src = np.float32([(450,550), (830,550), (230,700), (1075,700)]) 
     dst = np.float32([(450,0), (W-450,0), (450,H), (W-450,H)])
     
     #Undistort image
@@ -246,7 +246,7 @@ def pipeline(image):
     kernel_size = 5
     blurImage = gaussianBlur(undistortOut, kernel_size)
     
-    #Color and Gradient thresholding
+    # Color and Gradient thresholding
     colorGradientThresOut = colorAndGradientThres(blurImage, s_thresh=(170, 255), l_thresh=(190, 255) , sx_thresh=(25, 100))
    
     # Perspective Transform
@@ -257,7 +257,7 @@ def pipeline(image):
 
 # # Run pipeline on all test images
 
-# In[18]:
+# In[8]:
 
 
 # Test pipeline on all test images 
@@ -286,7 +286,7 @@ for image in images:
 
 # # Sliding Window Polyfit
 
-# In[19]:
+# In[9]:
 
 
 # Define method to fit polynomial to binary image with lines extracted, using sliding window  
@@ -450,9 +450,9 @@ plt.xlim(0, W)
 plt.ylim(H, 0)
 
 
-# # Fitt polynomial based on previous frame's polyfit
+# # Fit polynomial based on previous frame's polyfit
 
-# In[20]:
+# In[10]:
 
 
 # Define method to fit polynomial to binary image based upon a previous fit 
@@ -485,7 +485,7 @@ def polyfitPrev(binary_warped, left_fit_prev, right_fit_prev):
 
 # # Radius of Curvature and Distance from Lane Center Calculation
 
-# In[21]:
+# In[11]:
 
 
 # Define a method to determine radius of curvature and distance from lane center 
@@ -533,7 +533,7 @@ def curvatureRadiusAndLaneCenterCal(bin_img, l_fit, r_fit, l_lane_inds, r_lane_i
     return left_curverad, right_curverad, center_dist
 
 
-# In[22]:
+# In[12]:
 
 
 left_rad, right_rad, d_center = curvatureRadiusAndLaneCenterCal(pipelineOut, left_fit, right_fit, left_lane_inds, right_lane_inds)
@@ -544,7 +544,7 @@ print('Distance from lane center:', d_center, 'm')
 
 # # Draw detected polyfitted lanes back onto the original image
 
-# In[23]:
+# In[13]:
 
 
 def drawLanes(original_img, binary_img, l_fit, r_fit, Minv):
@@ -581,7 +581,7 @@ def drawLanes(original_img, binary_img, l_fit, r_fit, Minv):
     return result
 
 
-# In[24]:
+# In[14]:
 
 
 final = drawLanes(testImg, pipelineOut, left_fit, right_fit, Minv)
@@ -592,7 +592,7 @@ plt.title("Draw  Lanes Output Image", fontsize=25)
 
 # # Draw curvature radius and distance from center data onto the original image
 
-# In[25]:
+# In[15]:
 
 
 def  drawData(original_img, curv_rad, center_dist):
@@ -616,7 +616,7 @@ def  drawData(original_img, curv_rad, center_dist):
     return new_img
 
 
-# In[26]:
+# In[16]:
 
 
 final_data = drawData(final, (left_rad + right_rad)/2, d_center)
@@ -627,42 +627,42 @@ plt.title("Final Output Image", fontsize=25)
 
 # # Define a Line Class for Storing Data
 
-# In[27]:
+# In[17]:
 
 
 class Line():
     def __init__(self):
-        # was the line detected in the last iteration?
+        # Was the line detected in the last iteration?
         self.detected = False  
         
-        # x values of the last n fits of the line
+        # X values of the last n fits of the line
         self.recent_xfitted = [] 
         
-        #average x values of the fitted line over the last n iterations
+        # Average x values of the fitted line over the last n iterations
         self.bestx = None    
         
-        #polynomial coefficients averaged over the last n iterations
+        # Polynomial coefficients averaged over the last n iterations
         self.best_fit = None  
         
-        #polynomial coefficients for the most recent fit
+        # Polynomial coefficients for the most recent fit
         self.current_fit = []  
         
-        #radius of curvature of the line in some units
+        # Radius of curvature of the line
         self.radius_of_curvature = None 
         
-        #distance in meters of vehicle center from the line
+        # Distance of vehicle center from the line
         self.line_base_pos = None 
         
-        #difference in fit coefficients between last and new fits
+        # Difference in fit coefficients between last and new fits
         self.diffs = np.array([0,0,0], dtype='float') 
         
-        #number of detected pixels
+        # Number of detected pixels
         self.px_count = None
         
     def addFit(self, fit, inds):
         prevLinesCount = 20
         
-        # add a found fit to the line, up to prevLinesCount
+        # Add a found fit to the line, up to prevLinesCount
         if fit is not None:
             if self.best_fit is not None:
                 # Find difference between current fit and best fit
@@ -688,26 +688,25 @@ class Line():
                 self.best_fit = np.average(self.current_fit, axis=0)
 
 
-# # Define Complete Image Processing Pipeline
+# # Complete Pipeline
 
-# In[28]:
+# In[18]:
 
 
 def processImage(image):
     new_image = np.copy(image)
-    img_bin, Minv = pipeline(new_image)
+    image_bin, Minv = pipeline(new_image)
     
-    # if both left and right lines were detected last frame, use polyfit_using_prev_fit, otherwise use sliding window
+    # If both left and right lines were detected last frame, use polyfitPrev, otherwise use slidingWindowPolyfit
     if not l_line.detected or not r_line.detected:
-        l_fit, r_fit, l_lane_inds, r_lane_inds, _ = slidingWindowPolyfit(img_bin)
+        l_fit, r_fit, l_lane_inds, r_lane_inds, _ = slidingWindowPolyfit(image_bin)
     else:
-        #pass
-        l_fit, r_fit, l_lane_inds, r_lane_inds = polyfitPrev(img_bin, l_line.best_fit, r_line.best_fit)
+        l_fit, r_fit, l_lane_inds, r_lane_inds = polyfitPrev(image_bin, l_line.best_fit, r_line.best_fit)
         
-    # invalidate both fits if the difference in their x-intercepts isn't around 350 px (+/- 100 px)
+    # Delete both fits if the difference in their x-intercepts isn't around 375 px (+/- 100 px)
     if l_fit is not None and r_fit is not None:
         # calculate x-intercept (bottom of image, x=image_height) for fits
-        h = img.shape[0]
+        h = image.shape[0]
         l_fit_x_int = l_fit[0]*h**2 + l_fit[1]*h + l_fit[2]
         r_fit_x_int = r_fit[0]*h**2 + r_fit[1]*h + r_fit[2]
         x_int_diff = abs(r_fit_x_int-l_fit_x_int)
@@ -719,11 +718,10 @@ def processImage(image):
     l_line.addFit(l_fit, l_lane_inds)
     r_line.addFit(r_fit, r_lane_inds)
     
-    # draw the current best fit if it exists
+    # Draw the current best fit
     if l_line.best_fit is not None and r_line.best_fit is not None:
-        final_processed = drawLanes(new_image, img_bin, l_line.best_fit, r_line.best_fit, Minv)
-        left_rad, right_rad, d_center = curvatureRadiusAndLaneCenterCal(img_bin, l_line.best_fit, r_line.best_fit, 
-                                                               l_lane_inds, r_lane_inds)
+        final_processed = drawLanes(new_image, image_bin, l_line.best_fit, r_line.best_fit, Minv)
+        left_rad, right_rad, d_center = curvatureRadiusAndLaneCenterCal(image_bin, l_line.best_fit, r_line.best_fit, l_lane_inds, r_lane_inds)
         final_processed_out = drawData(final_processed, (left_rad + right_rad)/2, d_center)
     else:
         final_processed_out = new_image
@@ -733,7 +731,7 @@ def processImage(image):
 
 # # Process Project Video
 
-# In[29]:
+# In[19]:
 
 
 l_line  =  Line()
@@ -750,7 +748,7 @@ HTML("""
 """.format(video_output1))
 
 
-# In[30]:
+# In[20]:
 
 
 l_line  =  Line()
@@ -767,7 +765,7 @@ HTML("""
 """.format(video_output1))
 
 
-# In[31]:
+# In[ ]:
 
 
 l_line  =  Line()
