@@ -58,11 +58,11 @@ The flow of the software piepline is explained in the following sections along w
  #### Pipeline Output
  ![pipe-out](https://github.com/AllenMendes/Advanced-Lane-Finding-in-Image-and-Video-data/blob/master/CarND-Advanced-Lane-Lines-P2/output_images/pipeline_out.jpg)
  
- (__*Code Section- Sliding Window Polyfit*__): This function uses a sliding windows to fit a second order polynomial on the lane lines detected in the perspective transformed image. First, I start off by taking a histogram of all the pixels in the bottom half of the image. I narrow down the region for finding lane lines to the quarter of the histogram on either sides of the midpoint of the image. Starting from the left and right base points of the left and right detected lane lines, I create a rectangular window and determine all the non zero indices and append them into two arrays. I shift the windows upwards by the height of the window and repeat the above mentioned step. In this way, I obtain all the indicies of the left and right lanes which are detected. Using ```np.polyfit()```, I can fit a second order polynomial based of on the left and right lanes indices. The output looks like this:
+ (__*Code Section- Sliding Window Polyfit*__): This function uses a sliding windows to fit a second order polynomial on the lane lines detected in the perspective transformed image. First, I start off by taking a histogram of all the pixels in the bottom half of the image. I narrow down the region for finding lane lines to the quarter of the histogram on either sides of the midpoint of the image. Starting from the left and right base points of the left and right detected lane lines, I create a rectangular window and determine all the non zero indices and append them into two arrays. I shift the windows upwards by the height of the window and repeat the above mentioned step. In this way, I obtain all the indices of the left and right lanes which are detected. Using ```np.polyfit()```, I can fit a second order polynomial based of on the left and right lanes indices. The output looks like this:
 #### Sliding Window Polyfit Output
  ![slide-out](https://github.com/AllenMendes/Advanced-Lane-Finding-in-Image-and-Video-data/blob/master/CarND-Advanced-Lane-Lines-P2/output_images/slidingWindow_out.jpg)
  
- (__*Code Section- Fit polynomial based on previous frame's polyfit*__): We don't need to repeat the entire sliding window polyfit routine for every frame. Instead, if the previous frame correctly detected the lane lines, we can continue fitting the polynomial based on previous frame's data by this function. 
+ (__*Code Section- Fit polynomial based on previous frame's polyfit*__): We don't need to repeat the entire sliding window polyfit routine for every frame. Instead, if the previous frame was correctly detected the lane lines, we can continue fitting the polynomial based on previous frame's data by this function. 
  
  
  ### 6. Determine the curvature of the lane and vehicle position with respect to center
@@ -90,9 +90,9 @@ The flow of the software piepline is explained in the following sections along w
  [Images](https://github.com/AllenMendes/Advanced-Lane-Finding-in-Image-and-Video-data/tree/master/CarND-Advanced-Lane-Lines-P2/output_images/test_images_output)
  ---
  [Project Video](https://github.com/AllenMendes/Advanced-Lane-Finding-in-Image-and-Video-data/blob/master/CarND-Advanced-Lane-Lines-P2/test_videos_output/project_video_out.mp4)
- 
+ ---
  [Challenge Video](https://github.com/AllenMendes/Advanced-Lane-Finding-in-Image-and-Video-data/blob/master/CarND-Advanced-Lane-Lines-P2/test_videos_output/challenge_video_out.mp4)
- 
+ ---
  [Harder Challenge Video](https://github.com/AllenMendes/Advanced-Lane-Finding-in-Image-and-Video-data/blob/master/CarND-Advanced-Lane-Lines-P2/test_videos_output/harder_challenge_video_out.mp4)
 ---
 
