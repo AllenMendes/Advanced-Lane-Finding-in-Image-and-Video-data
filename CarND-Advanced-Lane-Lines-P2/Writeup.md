@@ -4,14 +4,15 @@
 
 The goals / steps of this project are the following:
 
-1. Compute the camera calibration matrix and distortion coefficients given a set of chessboard images.
-2. Apply a distortion correction to raw images.
-3. Use color transforms, gradients, etc., to create a thresholded binary image.
-4. Apply a perspective transform to rectify binary image ("birds-eye view").
-5. Detect lane pixels and fit to find the lane boundary.
-6. Determine the curvature of the lane and vehicle position with respect to center.
-7. Warp the detected lane boundaries back onto the original image.
-8. Output visual display of the lane boundaries and numerical estimation of lane curvature and vehicle position.
+1. Compute the camera calibration matrix and distortion coefficients given a set of chessboard images
+2. Apply a distortion correction to raw images
+3. Use color transforms, gradients, etc., to create a thresholded binary image
+4. Apply a perspective transform to rectify binary image ("birds-eye view")
+5. Detect lane pixels and fit to find the lane boundary
+6. Determine the curvature of the lane and vehicle position with respect to center
+7. Warp the detected lane boundaries back onto the original image
+8. Output visual display of the lane boundaries and numerical estimation of lane curvature and vehicle position
+9. Complete pipeline
 
 ## Reflection
 
@@ -39,7 +40,7 @@ The flow of the software piepline is explained in the following sections along w
   ![thres-out](https://github.com/AllenMendes/Advanced-Lane-Finding-in-Image-and-Video-data/blob/master/CarND-Advanced-Lane-Lines-P2/output_images/thres_out.jpg)
  
  ### 4. Apply a perspective transform to rectify binary image ("birds-eye view")
- (__*Code Section- Perspective Transform*__): I hardcored the source and destination points to extract a part of my binary output image and convert it to a bird's eye view for further calculations. The source and destination points are as follows:
+ (__*Code Section- Perspective Transform*__): I hardcored the source and destination points to extract a part of my binary output image (Region of Interest - ROI) and convert it to a bird's eye view for further calculations. The source and destination points are as follows:
  
  | Location | Source   | Destination |
  |:--------:|:--------:|:-----------:|
@@ -48,87 +49,62 @@ The flow of the software piepline is explained in the following sections along w
  | Bottom Left | 230, 700 | 450, 720 |
  | Bottom Right | 1075, 700 | 830, 720 |
  
+ Using the above values, the perspective transformed binary image looks like follows:
+ #### Perspective Transformed image
+ ![pers-out](https://github.com/AllenMendes/Advanced-Lane-Finding-in-Image-and-Video-data/blob/master/CarND-Advanced-Lane-Lines-P2/output_images/persTrans_out.jpg)
+ 
+ ### 5. Detect lane pixels and fit to find the lane boundary
+ (__*Code Section- Pipeline*__): Using all the above functions, I created a software pipeline to find perspective transformed binary images of all the [test images](https://github.com/AllenMendes/Advanced-Lane-Finding-in-Image-and-Video-data/tree/master/CarND-Advanced-Lane-Lines-P2/test_images). 
+ #### Pipeline Output
+ ![pipe-out](https://github.com/AllenMendes/Advanced-Lane-Finding-in-Image-and-Video-data/blob/master/CarND-Advanced-Lane-Lines-P2/output_images/pipeline_out.jpg)
+ 
+ (__*Code Section- Sliding Window Polyfit*__): This function uses a sliding windows to fit a second order polynomial on the lane lines detected in the perspective transformed image. First, I start off by taking a histogram of all the pixels in the bottom half of the image. I narrow down the region for finding lane lines to the quarter of the histogram on either sides of the midpoint of the image. Starting from the left and right base points of the left and right detected lane lines, I create a rectangular window and determine all the non zero indices and append them into two arrays. I shift the windows upwards by the height of the window and repeat the above mentioned step. In this way, I obtain all the indicies of the left and right lanes which are detected. Using ```np.polyfit()```, I can fit a second order polynomial based of on the left and right lanes indices. The output looks like this:
+#### Sliding Window Polyfit Output
+ ![slide-out](https://github.com/AllenMendes/Advanced-Lane-Finding-in-Image-and-Video-data/blob/master/CarND-Advanced-Lane-Lines-P2/output_images/slidingWindow_out.jpg)
+ 
+ (__*Code Section- Fit polynomial based on previous frame's polyfit*__): We don't need to repeat the entire sliding window polyfit routine for every frame. Instead, if the previous frame correctly detected the lane lines, we can continue fitting the polynomial based on previous frame's data by this function. 
  
  
-  
-  
-  If I convert this image to grayscale and use the ```inRange()``` function with parameters set to detect yellow and white lines, the output is not very clear in situations where shadows are present on the lane lines.
-  ##### Grayscale image
-  ![grayout](https://user-images.githubusercontent.com/8627486/43037471-47413482-8cdb-11e8-9757-5f26069dd0b3.png)
-  
- I converted the original image to a HSV image and observed that the color selected output performs better than a color selected grayscale image. Although, in comparison with the above two formats, the color selected output of a HSL image was much better in detecting white and yellow lane lines in image and video data without getting affected by any shadow on the road. Hence, I perform the further image processing techniques on a HSL image.
- ##### HSL image
- ![hslout](https://user-images.githubusercontent.com/8627486/43037612-fc394eaa-8cdc-11e8-95c9-fc3ff8ec46a5.png)
+ ### 6. Determine the curvature of the lane and vehicle position with respect to center
+ (__*Code Section- Radius of Curvature and Distance from Lane Center Calculation*__): To determine the radius of curvature and distance of the vehicle from lane center, I first need to convert the pixel information about lanes to meters. The actual lane width is 12 ft (3.7 meters) and the length of a dashed lane line is 10 ft (3.048 meters). The distance between ```left_fit_x_int``` and   ```right_fit_x_int``` (line 121) or lane width is 380 pixels and the length of a dashed lane line (```righty```-line 87) is 430 pixels. Hence, lane width in meters would be **3.7/380** and length of dashed lane line in meters would be **3.048/430**. Radius of curvature is obtained by (lines 31-32):
+ ![rad](https://user-images.githubusercontent.com/8627486/44008365-ec1a4efc-9e70-11e8-8a93-15acb1de0429.JPG)
  
- To detect white lines, I selected a high range of Light values (Range 190-255). To detect yellow lines, I selected a lower range of Hue values (Range 0-150) and a wider range of Light values (Range 100-255). The final output of a color selected HSL image looks as follows:
- ##### Color selected HSL image output
-![hslfilout](https://user-images.githubusercontent.com/8627486/43037702-622aa64a-8cde-11e8-9ae5-baf95dd78378.png)
+ The left lane and right lane radius of curvature is obtained at the base of the image and the average of the left and right lane radii is the radius of curvature of the lane. The current base points of the left and right lane is used to determine the lane center. As the vehicle is considered to be at the center of the image, we can easily find the lane center offset (line 41) in meters.
  
- ### 2. Convert image to grayscale for Canny Edge detection
- As the canny edge detector requires a grayscale image (as the algorithm looks for gradient values) as an input image, we convert the color selected HSL image into a grayscale image and give it to the canny edge detector.
- ##### Color selected HSL image converted to grayscale
- ![grayfilout](https://user-images.githubusercontent.com/8627486/43037727-ec5a12ec-8cde-11e8-8e32-854679044456.png)
+ ### 7. Warp the detected lane boundaries back onto the original image
+ (__*Code Section- Draw detected polyfitted lanes back onto the original image*__): Using ```cv2.polylines()``` and ```cv2.fillPoly()``` I can annote the polyfitted lane lane from the binary image. The inverse of the perspective transform matrix (Minv) is used to wrap the bird's eye view image onto the original image. The output looks like follows:
+ #### Drawing lanes line
+ ![draw-out](https://github.com/AllenMendes/Advanced-Lane-Finding-in-Image-and-Video-data/blob/master/CarND-Advanced-Lane-Lines-P2/output_images/drawLanes_out.jpg)
  
- ### 3. Gaussian Blur to remove noise from the image
- To smoothen the grayscale color selected HSL image, we apply a Gaussian Blur with ```kernel_size = 7``` and thresholds as ```low_threshold = 50```, ```high_threshold = 150```.
- ##### Applying Gaussian Blur
- ![blurout](https://user-images.githubusercontent.com/8627486/43038204-2f666afa-8ce3-11e8-8ff4-14d5cd15bde6.png)
+### 8. Output visual display of the lane boundaries and numerical estimation of lane curvature and vehicle position
+ (__*Code Section- Draw curvature radius and distance from center data onto the original image*__): Determine the lane center offset direction i.e. left or right of the vehicle center and display all the information as follows:
+ #### Final Output
+ ![final-out](https://github.com/AllenMendes/Advanced-Lane-Finding-in-Image-and-Video-data/blob/master/CarND-Advanced-Lane-Lines-P2/output_images/final_out.jpg)
  
- ### 4. Canny Edge detection
- Apply Canny Edge detector to the smoothen image to obtain an image with all the edges detected.
- ##### Applying Canny Edge detector
- ![edgeout](https://user-images.githubusercontent.com/8627486/43038223-6b31d6c8-8ce3-11e8-82da-cfbfd7a04400.png)
+ ### 9. Complete pipeline
+ (__*Code Section- Define a Line Class for Storing Data*__): In this function, we create variables to store useful information like is line detected or not, current fit, best fit, etc. The ```addFit()``` function will add the current fitted polynomial into an array only if the difference of the current fit and the best fit found so far is greather than a emperical threshold. Only the most recent ```prevLinesCount``` fits will be stored in the this array and the average of the array along with the current fit will be used to display the results. If a good fit is not detected in a current frame, then the oldest one fit will be taken off from the array.
  
- ### 5. Define a Region of Interest (ROI)
- Define a polygon to exclude all the irrelevant edges in the image so that we can only see the lane lines on the road.
- ##### ROI output
- ![roiout](https://user-images.githubusercontent.com/8627486/43038250-efd78e68-8ce3-11e8-8b33-dd4f8b751832.png)
- 
- ### 6. Hough Transform
- Find hough lines in the ROI output image using hough transform
- ##### Hough Transform output
- ![houghout](https://user-images.githubusercontent.com/8627486/43038461-eb6d62fa-8ce6-11e8-8a99-9ac5566966d6.png)
- 
- ### 7. Average and extrapolate hough lines
-   * Average function - ```average(lines)``` 
-   
-   First I created two lists ```leftLine``` and ```rightLine``` which would store the weighted average of all the hough lines      detected in the left and right lane respectively. To classify if a hough line belongs to the left or right lane, we            calculate the slopes of all hough lines (intercepts and length as well). Hough lines with negative slope and length more than    50  pixels get classified as left lane lines and hough lines with positive slope and length more than 50 pixels get              classified as right lane lines. Taking a weighted average of all the classified left and right lane hough lines based on the    length of the lines help eliminate all the smaller hough lines detected that can make the final output unstable. Hence, only    the longer hough lines detected will dominate the weighted average so that the output is robust.
-   
-   * Find Endpoints function - ```findEndpoints(image, intercepts, yLimit)```
-   
-   I created two lists namely ```global prev_leftLaneLine``` and ```global prev_rightLaneLine```. These lists will store the ```leftLine``` and ```rightLine``` values of the previous frame while comparing the corresponding values in the current frame only when a NONE case is observed in the ```leftLine``` and ```rightLine``` values. The reason for getting a NONE case is that may be for a certain frame, all the hough lines detected have only positive or only negative slope. That means no hough lines were classified in either the ```leftLine``` and ```rightLine``` lists resulting in a empty list or a NONE case. The pipeline crashes if this NONE case is not handled. Hence, if a NONE case occurs, using the  ```global prev_leftLaneLine``` and ```global prev_rightLaneLine``` values, I find the endpoints of the final left lane and right lane to be drawn on the image. If no NONE case occurs, simply use the current frame's ```leftLine``` and ```rightLine``` values to calculate the final left lane and right lane to be drawn on the image. ```yLimit`` is the top endpoint of ROI on the Y axis.
-
-### 8. Draw annotated lines on image and video data
-   * Draw Lane Lines function - ```drawLaneLines(image, endpoints, color=[[255, 0, 0], [0, 0, 255]], thickness = 15)```
-   
-   If there is no NONE case from the previous function, I use the ```cv2.line()``` function to draw an annotated left lane on the image in RED color and an annotated right lane on the image in BLUE color. I also use the ```cv2.fillPoly()``` function to fill the area between the left and right lane in GREEN color to represent "SAFE DRIVING ZONE". I also add weights on the final image using ```weightedImage(image, initial_image, α=0.5, β=1., γ=0.)```.
-
- ##### Applying Averaging and extrapolating functions
- ![avgout](https://user-images.githubusercontent.com/8627486/43038651-4d6d0d4e-8ceb-11e8-8e34-59bf3caf6ffe.png)
- 
- ### 9. Main pipeline
- Using all the above helper functions, when I first tested my pipeline on the video data, everything worked fine but I observed a lot of jitter in the lane lines holding their position (bouncing around slightly) along the entire length of the video. The pipeline worked but it wasn't robust enough ! After researching online, I found out the reason for this jitter to be slight deviations in the lane lines values from frame to frame which causes this jittering effect. Hence, I stored the lane line outputs of the most recent 50 frames in ```prev_LaneLines[]``` and took an average of the most recent 50 frames output with the current frame's lane line output to display the current frame's output. I made a class ```class DetectLanes``` and embedded my pipeline inside it so that I can use an object of this class ```detect = DetectLanes()``` to display the mean output of my pipeline on image and video data. NOTE: I had to flush the ```prev_LaneLines[]``` array using ```del detect.prev_LaneLines[:]``` before running the next video file as it used the data from the previous video file's execution.
+ (__*Code Section- Define Complete Image Processing Pipeline*__): If left and right lanes are detected in current frame, use ```slidingWindowPolyfit()``` function else use previously detected lane lines using ```polyfitPrev()```. If the distance between the two lanes is too much (wrong detection), then invalidate those fits. In the end, display the results as the average of the current fits and the best fits detected.
    
  # Software Pipeline Output
- [Images](https://github.com/AllenMendes/Finding-Lane-Lines-in-Image-and-Video/tree/master/CarND-LaneLines-P1/test_images_output)
+ [Images](https://github.com/AllenMendes/Advanced-Lane-Finding-in-Image-and-Video-data/tree/master/CarND-Advanced-Lane-Lines-P2/output_images/test_images_output)
  ---
- [Videos](https://github.com/AllenMendes/Finding-Lane-Lines-in-Image-and-Video/tree/master/CarND-LaneLines-P1/test_videos_output)
----
- [Extra Video](https://github.com/AllenMendes/Finding-Lane-Lines-in-Image-and-Video/tree/master/CarND-LaneLines-P1/test_videos_output_extra)
+ [Project Video](https://github.com/AllenMendes/Advanced-Lane-Finding-in-Image-and-Video-data/blob/master/CarND-Advanced-Lane-Lines-P2/test_videos_output/project_video_out.mp4)
+ 
+ [Challenge Video](https://github.com/AllenMendes/Advanced-Lane-Finding-in-Image-and-Video-data/blob/master/CarND-Advanced-Lane-Lines-P2/test_videos_output/challenge_video_out.mp4)
+ 
+ [Harder Challenge Video](https://github.com/AllenMendes/Advanced-Lane-Finding-in-Image-and-Video-data/blob/master/CarND-Advanced-Lane-Lines-P2/test_videos_output/harder_challenge_video_out.mp4)
 ---
 
 ### 2. Potential shortcomings of current pipeline
 The current software pipeline will not work:
-1. If there are curved roads (mountain roads)
-2. If there are too many shadows on the roads
+1. If the roads have too much curves and U turns (mountain roads)
+2. If there are too many shadows or bright spots on the roads
 3. If there no lane markings or lane markings are other than yellow and white color lines
-4. If the image/video perspective is not head on (horizon level changes)
 5. Drastic changes in ligthing conditions (rain, night time, snow)
-6. Cars or external objects blocking the region of interest or lane lines too much
+6. If cars crossover the lane lines resulting in a wrong detection
 
 ### 3. Possible improvements of current pipeline
-1. Add perspective transform
+1. Make the pipeline data driven (Train a CNN over image and video data) instead of rule/logic based 
 2. Making pipeline independent of light variations and shadows
 3. Adding more sensor data like LIDAR and GPS in addition to the visual data
-
-
